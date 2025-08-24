@@ -1,0 +1,39 @@
+{
+  "domains": [
+    {
+      "fqdn": "json-example.com",
+      "registered_at": "2025-08-24 13:29:27+00",
+      "unregistered_at": null
+    },
+    {
+      "fqdn": "expired_example.org",
+      "registered_at": "2023-01-01 00:00:00+00",
+      "unregistered_at": "2024-01-01 00:00:00+00"
+    },
+    {
+      "fqdn": "active-example.net",
+      "registered_at": "2024-06-01 00:00:00+00",
+      "unregistered_at": null
+    }
+  ],
+  "flags": [
+    {
+      "domain_fqdn": "expired_example.org",
+      "flag": "EXPIRED",
+      "valid_from": "2024-01-01 00:00:00+00",
+      "valid_to": null
+    },
+    {
+      "domain_fqdn": "expired_example.org",
+      "flag": "OUTZONE",
+      "valid_from": "2024-06-01 00:00:00+00",
+      "valid_to": "2024-08-01 00:00:00+00"
+    },
+    {
+      "domain_fqdn": "active-example.net",
+      "flag": "EXPIRED",
+      "valid_from": "2024-12-01 00:00:00+00",
+      "valid_to": "2024-12-15 00:00:00+00"
+    }
+  ]
+}

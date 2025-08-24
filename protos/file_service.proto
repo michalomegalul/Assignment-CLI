@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+/*
+UUID
+*/
+message Uuid
+{
+    string value = 1;
+}
+
+message StatRequest
+{
+    // File UUID
+    Uuid uuid = 1;
+}
+
+message StatReply
+{
+    Data data = 1;
+    message Data
+    {
+        // File creation date and time
+        google.protobuf.Timestamp create_datetime = 1;
+        // File size in bytes
+        uint64 size = 2;
+        // File MIME type
+        string mimetype = 3;
+        // Display name of the file
+        string name = 4;
+    }
+}
+
+message ReadRequest
+{
+    // File UUID
+    Uuid uuid = 1;
+    // Maximum size of a chunk in reply. If 0, whole file is read at once.
+    uint64 size = 2;
+}
+
+message ReadReply
+{
+    Data data = 1;
+    message Data
+    {
+        bytes data = 1;
+    }
+}
+
+service File
+{
+    // Get file metadata
+    //
+    // * Return INVALID_ARGUMENT if invalid UUID is used.
+    // * Return NOT_FOUND if file is not found.
+    // * Return FAILED_PRECONDITION in case of database errors.
+    rpc stat (StatRequest) returns (StatReply) {}
+    // Read file content
+    //
+    // * Return INVALID_ARGUMENT if invalid UUID is used.
+    // * Return NOT_FOUND if file is not found.
+    // * Return FAILED_PRECONDITION in case of database or file system errors.
+    rpc read (ReadRequest) returns (stream ReadReply) {}
+}
