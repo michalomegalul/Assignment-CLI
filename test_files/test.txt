@@ -1,5 +1,0 @@
-# Domain list for testing
-text-example.com
-text-expired.org
-text-active.net
-text-another.info
