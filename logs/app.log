@@ -1,0 +1,122 @@
+2025-08-25 09:13:05 - cli.logging_config - INFO - setup_logging:224 - Logging system initialized
+2025-08-25 09:13:05 - cli.status - INFO - wrapper:366 - CLI command started
+2025-08-25 09:13:05 - db.manager - INFO - __init__:16 - DatabaseManager initialized
+2025-08-25 09:13:05 - audit - INFO - create_audit_log_entry:458 - Audit log entry
+2025-08-25 09:13:05 - cli.status - INFO - wrapper:377 - CLI command completed
+2025-08-25 09:13:05 - cli.logging_config - INFO - setup_logging:224 - Logging system initialized
+2025-08-25 09:13:05 - cli.active_domains - INFO - wrapper:366 - CLI command started
+2025-08-25 09:13:05 - db.manager - INFO - __init__:16 - DatabaseManager initialized
+2025-08-25 09:13:05 - audit - INFO - create_audit_log_entry:458 - Audit log entry
+2025-08-25 09:13:05 - cli.active_domains - INFO - wrapper:377 - CLI command completed
+2025-08-25 09:13:05 - cli.logging_config - INFO - setup_logging:224 - Logging system initialized
+2025-08-25 09:13:05 - cli.main - INFO - cli:16 - Domain Management CLI started
+2025-08-25 09:13:05 - cli.file_client - INFO - wrapper:366 - CLI command started
+2025-08-25 09:13:05 - api.stat_rest - INFO - wrapper:320 - API request completed
+2025-08-25 09:13:05 - audit - INFO - create_audit_log_entry:458 - Audit log entry
+2025-08-25 09:13:05 - cli.file_client - INFO - wrapper:377 - CLI command completed
+2025-08-25 09:13:05 - cli.logging_config - INFO - setup_logging:224 - Logging system initialized
+2025-08-25 09:13:05 - cli.main - INFO - cli:16 - Domain Management CLI started
+2025-08-25 09:13:05 - cli.file_client - INFO - wrapper:366 - CLI command started
+2025-08-25 09:13:05 - db.manager - INFO - __init__:16 - DatabaseManager initialized
+2025-08-25 09:13:05 - db.manager - INFO - __init__:16 - DatabaseManager initialized
+2025-08-25 09:13:38 - cli.logging_config - INFO - setup_logging:225 - Logging system initialized
+2025-08-25 09:13:38 - cli.main - INFO - cli:18 - Domain Management CLI started
+2025-08-25 09:13:38 - cli.status - INFO - wrapper:366 - CLI command started
+2025-08-25 09:13:38 - cli.status - INFO - status:34 - Retrieving database status
+2025-08-25 09:13:38 - db.manager - INFO - __init__:16 - DatabaseManager initialized
+2025-08-25 09:13:38 - db.get_stats - DEBUG - wrapper:232 - Database query started
+2025-08-25 09:13:38 - db.manager - DEBUG - get_stats:100 - Executing database statistics queries
+2025-08-25 09:13:38 - db.manager - DEBUG - performance_timer:405 - Operation started
+2025-08-25 09:13:38 - db.manager - ERROR - get_connection:30 - Failed to establish database connection
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 26, in get_connection
+    connection = psycopg2.connect(self.connection_string)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+
+2025-08-25 09:13:38 - db.manager - ERROR - performance_timer:425 - Operation failed
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/logger.py", line 413, in performance_timer
+    yield
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 26, in get_connection
+    connection = psycopg2.connect(self.connection_string)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+
+2025-08-25 09:13:38 - db.get_stats - ERROR - wrapper:258 - Database query failed
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/logger.py", line 235, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 102, in get_stats
+    with self.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 26, in get_connection
+    connection = psycopg2.connect(self.connection_string)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+
+2025-08-25 09:13:38 - cli.status - ERROR - status:62 - Database connection failed
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/commands.py", line 39, in status
+    stats = db.get_stats()
+            ^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/logger.py", line 235, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 102, in get_stats
+    with self.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 26, in get_connection
+    connection = psycopg2.connect(self.connection_string)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+
+2025-08-25 09:13:38 - cli.status - ERROR - wrapper:389 - CLI command failed
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/commands.py", line 39, in status
+    stats = db.get_stats()
+            ^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/logger.py", line 235, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 102, in get_stats
+    with self.get_connection() as conn:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/database.py", line 26, in get_connection
+    connection = psycopg2.connect(self.connection_string)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/psycopg2/__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+psycopg2.OperationalError: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/logger.py", line 369, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/Assignment-CLI/Assignment-CLI/cli/commands.py", line 68, in status
+    click.echo(f"✗ Database error: {e}")
+  File "/usr/lib/python3/dist-packages/click/utils.py", line 319, in echo
+    file.flush()
+BrokenPipeError: [Errno 32] Broken pipe
