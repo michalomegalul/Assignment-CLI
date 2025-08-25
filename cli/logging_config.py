@@ -29,9 +29,7 @@ from functools import wraps
 SENSITIVE_PATTERNS = [
     # Database URLs with credentials
     re.compile(r'postgresql://[^:]+:[^@]+@', re.IGNORECASE),
-    # API keys and tokens
-    re.compile(r'(api_key|token|password|secret)=[^&\s]+', re.IGNORECASE),
-    # Email addresses (optional privacy measure)
+    # Email addresses (optional privacy measure)  
     re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
 ]
 
