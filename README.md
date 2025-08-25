@@ -15,6 +15,7 @@ A comprehensive CLI tool for domain registration management with PostgreSQL back
 - **Docker Integration** for easy deployment
 - **CLI Interface** with comprehensive commands
 - **Interactive Data Generator** with random domain names
+- **Comprehensive Logging System** with structured logging, correlation IDs, and log rotation
 
 ## Installation Options
 
@@ -440,6 +441,85 @@ pytest tests/test_database.py::TestDatabaseManager::test_get_active_domains -v -
 # Check test coverage
 pytest tests/ --cov=cli --cov-report=term-missing
 ```
+
+## Logging System
+
+The Domain Management CLI includes a comprehensive logging system designed for production use.
+
+### Features
+
+- **Structured Logging** with consistent format across all components
+- **Correlation IDs** for tracking operations across modules
+- **Log Rotation** to prevent large log files (10MB main, 5MB error logs)
+- **Multiple Log Levels** (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- **Separate Error Logs** for critical issues
+- **Sensitive Data Filtering** to prevent accidental logging of secrets
+- **Performance Logging** for slow operations
+- **API Request/Response Logging** with timing metrics
+- **Database Operation Logging** with query performance
+
+### Configuration
+
+Configure logging via environment variables:
+
+```bash
+# Log level - DEBUG, INFO, WARNING, ERROR, CRITICAL
+export LOG_LEVEL=INFO
+
+# Enable/disable file logging
+export LOG_TO_FILE=true
+
+# Enable/disable console logging  
+export LOG_TO_CONSOLE=true
+
+# Log directory path
+export LOG_DIR=logs
+```
+
+### Log Files
+
+Log files are created in the `logs/` directory:
+
+- `domain-cli.log` - Main application log (all levels)
+- `domain-cli-errors.log` - Error-only log for critical issues
+
+### Log Format
+
+```
+TIMESTAMP | LEVEL    | COMPONENT        | CORRELATION_ID | MESSAGE
+```
+
+Example entries:
+```
+2025-01-20 10:30:45 | INFO     | domain-cli.database  | abc12345     | DB | SELECT | 15.23ms | 5 rows | SELECT d.fqdn FROM domain...
+2025-01-20 10:30:46 | INFO     | domain-cli.file_client | abc12345   | API | GET https://api.example.com/file/123/stat | 200 | 45.67ms
+2025-01-20 10:30:47 | ERROR    | domain-cli.commands  | abc12345     | Status command failed: connection refused
+```
+
+### Usage Examples
+
+```bash
+# Run with debug logging
+LOG_LEVEL=DEBUG python -m cli.commands status
+
+# Run with file logging disabled
+LOG_TO_FILE=false python -m cli.commands active-domains
+
+# Run with custom log directory
+LOG_DIR=/var/log/domain-cli python -m cli.commands status
+```
+
+### Integration
+
+The logging system automatically captures:
+
+- **CLI Command Execution** - Start/completion with correlation IDs
+- **Database Operations** - Connection attempts, queries, performance metrics
+- **REST API Calls** - HTTP requests/responses with timing
+- **Error Handling** - Exceptions with full stack traces
+- **Performance Metrics** - Slow operation detection
+
+Each operation gets a unique correlation ID that can be traced across all log entries for that operation.
 
 ## License
 
