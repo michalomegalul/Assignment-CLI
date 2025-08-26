@@ -14,7 +14,6 @@ CREATE TABLE domain (
 
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
--- Prevent overlapping domain registrations
 ALTER TABLE domain ADD CONSTRAINT no_overlap_for_fqdn
 EXCLUDE USING gist (
     fqdn WITH =,

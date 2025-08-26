@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-"""
-Standalone file-client command as per assignment requirements
-"""
 import sys
 import os
 
