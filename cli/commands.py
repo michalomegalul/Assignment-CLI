@@ -1,12 +1,12 @@
 import click
 from datetime import datetime
-from .database import DatabaseManager
-
+from .db import DatabaseManager
+from .errors import handle_error
 
 @click.group()
 @click.version_option(version='1.0.0')
 def cli():
-    """Domain Management CLI by michal"""
+    """Domain Management CLI"""
     pass
 
 
@@ -14,7 +14,6 @@ def cli():
 def status():
     """Show database status"""
     click.echo(f"[{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC] Database Status")
-    click.echo("Author: michal")
     
     try:
         db = DatabaseManager()
@@ -25,7 +24,7 @@ def status():
         click.echo(f"  Flags: {stats['total_flags']} total")
         
     except Exception as e:
-        click.echo(f"✗ Database error: {e}")
+        handle_error(f"Database error: {e}")
 
 
 @cli.command()
@@ -40,10 +39,10 @@ def active_domains():
             for domain in domains:
                 click.echo(f"  {domain}")
         else:
-            click.echo("No active domains found")
+            handle_error("No active domains found")
             
     except Exception as e:
-        click.echo(f"Error: {e}")
+        handle_error(f"Error: {e}")
 
 
 @cli.command()
@@ -58,10 +57,10 @@ def flagged_domains():
             for domain in domains:
                 click.echo(f"  {domain}")
         else:
-            click.echo("No flagged domains found")
-            
+            handle_error("No flagged domains found")
+
     except Exception as e:
-        click.echo(f"Error: {e}")
+        handle_error(f"Error: {e}")
 
 
 if __name__ == '__main__':

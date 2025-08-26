@@ -14,14 +14,12 @@ class TestPerformance:
         
         start_time = time.time()
         
-        # Validate 1000 UUIDs
         for _ in range(1000):
             validate_uuid(valid_uuid)
             validate_uuid(invalid_uuid)
         
         elapsed = time.time() - start_time
         
-        # Should process 2000 validations in under 1 second
         assert elapsed < 1.0, f"UUID validation took {elapsed:.3f}s for 2000 operations"
     
     @patch('cli.file_client.requests.get')
@@ -34,10 +32,9 @@ class TestPerformance:
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
-        # Use valid UUID instead of 'test-uuid'
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
         
-        stat_rest(valid_uuid, 'http://localhost/')
+        stat_rest(valid_uuid, 'http://localhost/', '-')
         
         # Verify timeout is set to 30 seconds
         mock_get.assert_called_with(f'http://localhost/file/{valid_uuid}/stat/', timeout=30)

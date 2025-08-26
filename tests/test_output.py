@@ -8,18 +8,17 @@ class TestRestClient:
     """Test REST client logic and error handling"""
     
     @patch('cli.file_client.requests.get')
-    def test_stat_rest_url_construction(self, mock_get):
+    @patch('cli.file_client.write_output')
+    def test_stat_rest_url_construction(self, mock_write, mock_get):
         """Test that URLs are constructed correctly"""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {'name': 'test'}
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
-        
-        # Use valid UUID and update expected URLs
+
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
-        
-        # Test various base URL formats
+
         test_cases = [
             ('http://localhost/', f'http://localhost/file/{valid_uuid}/stat/'),
             ('http://localhost', f'http://localhost/file/{valid_uuid}/stat/'),
@@ -28,12 +27,10 @@ class TestRestClient:
         ]
         
         for base_url, expected_url in test_cases:
-            # Reset mock for each iteration
             mock_get.reset_mock()
             
-            with patch('cli.file_client.write_output'):
-                stat_rest(valid_uuid, base_url)
-                mock_get.assert_called_with(expected_url, timeout=30)
+            stat_rest(valid_uuid, base_url, '-')
+            mock_get.assert_called_with(expected_url, timeout=30)
     
     @patch('cli.file_client.requests.get')
     @patch('cli.file_client.write_output')
@@ -64,7 +61,7 @@ class TestRestClient:
             mock_get.return_value = mock_response
             
             # Should not raise exceptions
-            stat_rest(valid_uuid, 'http://localhost/')
+            stat_rest(valid_uuid, 'http://localhost/', '-')
     
     @patch('cli.file_client.requests.get')
     def test_rest_error_handling(self, mock_get):
@@ -82,10 +79,11 @@ class TestRestClient:
             mock_response = MagicMock()
             mock_response.status_code = status_code
             mock_response.reason = expected_behavior
+            mock_response.raise_for_status.side_effect = requests.HTTPError(f"{status_code} {expected_behavior}")
             mock_get.return_value = mock_response
             
             with pytest.raises(SystemExit):
-                stat_rest(valid_uuid, 'http://localhost/')
+                stat_rest(valid_uuid, 'http://localhost/', '-')
     
     @patch('cli.file_client.requests.get')
     def test_rest_timeout_handling(self, mock_get):
@@ -95,7 +93,7 @@ class TestRestClient:
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
         
         with pytest.raises(SystemExit):
-            stat_rest(valid_uuid, 'http://localhost/')
+            stat_rest(valid_uuid, 'http://localhost/', '-')
     
     @patch('cli.file_client.requests.get')
     def test_rest_connection_error(self, mock_get):
@@ -105,8 +103,7 @@ class TestRestClient:
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
         
         with pytest.raises(SystemExit):
-            stat_rest(valid_uuid, 'http://localhost/')
-
+            stat_rest(valid_uuid, 'http://localhost/', '-')
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

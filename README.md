@@ -6,14 +6,14 @@ A comprehensive CLI tool for domain registration management with PostgreSQL back
 ## Overview
 
 This project implements a CLI application:
-1. **File Client** - Retrieves and prints data from REST/gRPC backends
+1. **File Client** - Fetches file metadata and contents from REST or gRPC backends.
 2. **Domain Management** - PostgreSQL database for domain lifecycle
 
 ## Features
 
 ### File Client
 - **REST API Integration** - File operations via REST endpoints
-- **gRPC Support** - Interface ready
+- **gRPC Support** - doesn't work yet
 - **UUID Validation** - Proper format checking
 - **Flexible Output** - Console or file output options
 - **Error Handling** - error reporting
@@ -21,7 +21,7 @@ This project implements a CLI application:
 ### Domain Management System
 - **PostgreSQL Database** - Advanced domain lifecycle management
 - **Domain Flag System** - Track EXPIRED, OUTZONE, DELETE_CANDIDATE states
-- **Time-based Constraints** - Prevent overlapping registrations
+- **Time-based Constraints** - Prevent overlapping
 - **Advanced Queries** - Domain status reporting
 - **Docker Integration** - Containerized environment
 
@@ -34,20 +34,28 @@ This project implements a CLI application:
 git clone https://github.com/michalomegalul/Assignment-CLI.git
 cd Assignment-CLI
 
+# Configure environment
+cp .env.example .env
+# Edit .env with your settings
+
 # Start services
 docker-compose up -d
 
 # Initialize test data
 docker-compose exec app python init_script.py
 
-# Run the CLI
-docker-compose exec app python cli.py --help
+# Run the Commands directly
+docker-compose exec app python file-client --help
+
+# OR open a shell in the container
+docker-compose exec app bash
+file-client --help
 ```
 
 ### Local Installation
 
 ```bash
-# Prerequisites: Python 3.7-3.10, PostgreSQL 9.6+
+# Prerequisites: Python 3.7–3.10, PostgreSQL 9.6+
 
 # Install dependencies
 pip install -r requirements.txt
@@ -59,26 +67,26 @@ psql -U postgres -d domains -f sql/seed.sql
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your database details
+# Edit .env with your settings
 
-# Run CLI
-python cli.py --help
+# Run file-client
+python file-client --help
 ```
 
-## File Client Usage (Assignment Specification)
+## File Client Usage
 
-The `file-client` command implements the exact assignment requirements:
+The `file-client` command implements:
 
 ```bash
 # Basic usage
-python cli.py file-client [options] stat UUID
-python cli.py file-client [options] read UUID
+file-client [options] stat UUID
+file-client [options] read UUID
 
 # Examples
-python cli.py file-client stat 123e4567-e89b-12d3-a456-426614174000
-python cli.py file-client --backend rest stat 123e4567-e89b-12d3-a456-426614174000
-python cli.py file-client --backend rest --base-url http://api.example.com/ read 123e4567-e89b-12d3-a456-426614174000
-python cli.py file-client --output /tmp/metadata.txt stat 123e4567-e89b-12d3-a456-426614174000
+file-client stat 123e4567-e89b-12d3-a456-426614174000
+file-client --backend rest stat 123e4567-e89b-12d3-a456-426614174000
+file-client --backend rest --base-url http://localhost/ read 123e4567-e89b-12d3-a456-426614174000
+file-client --output /tmp/metadata.txt stat 123e4567-e89b-12d3-a456-426614174000
 ```
 
 ### File Client Options
@@ -96,18 +104,18 @@ python cli.py file-client --output /tmp/metadata.txt stat 123e4567-e89b-12d3-a45
 - **`read`** - Outputs file content
 
 # Domain management commands
-python cli.py status
-python cli.py active-domains
-python cli.py flagged-domains
+cli-client status
+cli-client active-domains
+cli-client flagged-domains
 
-# File client commands (matching assignment requirements exactly)
-python cli.py file-client --help
-python cli.py file-client stat UUID
-python cli.py file-client read UUID
-python cli.py file-client --backend=rest stat UUID
-python cli.py file-client --base-url=http://example.com/ stat UUID
-python cli.py file-client --output=output.txt read UUID
-```
+# File client commands
+file-client --help
+file-client stat UUID
+file-client read UUID
+file-client --backend=rest stat UUID
+file-client --base-url=http://example.com/ stat UUID
+file-client --output=output.txt read UUID
+
 
 ## Database Schema
 
@@ -135,44 +143,5 @@ python cli.py file-client --output=output.txt read UUID
 ### Run All Tests
 
 ```bash
-# Docker environment
-docker-compose exec app pytest tests/ -v
-#OR:
-- `test_cli.py` - File client and database command tests
-- `run_tests.sh` - Script to automate tests for debbuging
-### Environment Variables
-
-```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/domains
-
-# API (for testing)
-API_BASE_URL=http://localhost:8080
-
-# Logging
-LOG_LEVEL=INFO
+sudo ./run_tests.sh
 ```
-
-## Project Structure
-
-```
-Assignment-CLI/
-├── cli.py                 # Main CLI application
-├── sql/
-│   ├── schema.sql        # Database schema
-│   └── seed.sql          # Test data
-├── tests/
-│   └── test_cli.py       # Unit tests
-├── docker-compose.yml    # Container
-├── Dockerfile           # Application container
-├── requirements.txt     # Python dependencies
-├── init_script.py       # Database initialization
-└── README.md           # This file
-```
-
-### Logging
-
-Enable logging for debugging:
-```bash
-python cli.py --verbose status
-python cli.py --verbose file-client stat <uuid>

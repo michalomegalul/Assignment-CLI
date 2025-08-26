@@ -20,15 +20,12 @@ class DatabaseManager:
         """Get database statistics."""
         with self.get_connection() as conn:
             with conn.cursor() as cur:
-                # Total domains
                 cur.execute("SELECT COUNT(*) FROM domain")
                 total_domains = cur.fetchone()[0]
                 
-                # Active domains (not unregistered)
                 cur.execute("SELECT COUNT(*) FROM domain WHERE unregistered_at IS NULL")
                 active_domains = cur.fetchone()[0]
                 
-                # Total flags
                 cur.execute("SELECT COUNT(*) FROM domain_flag")
                 total_flags = cur.fetchone()[0]
                 

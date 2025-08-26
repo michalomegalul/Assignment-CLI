@@ -6,3 +6,5 @@ grpcio>=1.50.0
 grpcio-tools>=1.50.0
 protobuf>=4.21.0
 alembic>=1.10
+Flask>=2.3.0
+pytest>=7.0.0

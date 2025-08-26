@@ -1,34 +1,97 @@
-import click
+import uuid as uuid_lib
 import requests
 import sys
-import uuid as uuid_lib
-
+import click
+from .errors import handle_error
 
 def validate_uuid(uuid_str):
-    """Simple UUID validation"""
+    """Validate if string is a valid UUID format"""
+    if uuid_str is None or uuid_str == '':
+        return False
+    
     try:
         uuid_lib.UUID(uuid_str)
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
-
 def write_output(content, output_file):
-    """Write content to file or stdout"""
+    """Write content to output file or stdout"""
     if output_file == '-':
         click.echo(content)
     else:
         with open(output_file, 'w') as f:
             f.write(content)
 
+def stat_rest(uuid_str, base_url, output):
+    """Get file statistics via REST API"""
+    if not base_url.endswith('/'):
+        base_url += '/'
+
+    url = f"{base_url}file/{uuid_str}/stat/"
+
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+
+        data = response.json()
+
+        output_lines = [
+            f"Name: {data.get('name', 'Unknown')}",
+            f"Size: {data.get('size', 0)} bytes",
+            f"MIME Type: {data.get('mimetype', 'Unknown')}",
+            f"Created: {data.get('create_datetime', 'Unknown')}"
+        ]
+
+        content = '\n'.join(output_lines)
+        write_output(content, output)
+
+    except requests.exceptions.RequestException as e:
+        handle_error(str(e))
+    except Exception as e:
+        handle_error(str(e))
+
+def read_rest(uuid_str, base_url, output):
+    """Read file content via REST API"""
+    if not validate_uuid(uuid_str):
+        handle_error("Error: Invalid UUID format")
+
+    
+    if not base_url.endswith('/'):
+        base_url += '/'
+    
+    url = f"{base_url}file/{uuid_str}/read/"
+    
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+
+        if output == '-':
+            sys.stdout.buffer.write(response.content)
+        else:
+            with open(output, 'wb') as f:
+                f.write(response.content)
+                
+    except requests.exceptions.RequestException as e:
+        handle_error(f"Error: {e}")
+    except Exception as e:
+        handle_error(f"Error: {e}")
+
+def stat_grpc(uuid, grpc_server, output):
+    """Get file metadata via gRPC (not implemented)"""
+    handle_error("Error: gRPC backend not implemented")
+
+def read_grpc(uuid, grpc_server, output):
+    """Read file content via gRPC (not implemented)"""
+    handle_error("Error: gRPC backend not implemented")
 
 @click.command()
 @click.option('--backend', type=click.Choice(['rest', 'grpc']), default='grpc',
               help='Set a backend to be used, choices are grpc and rest. Default is grpc.')
 @click.option('--grpc-server', default='localhost:50051',
               help='Set a host and port of the gRPC server. Default is localhost:50051.')
-@click.option('--base-url', default='http://localhost/',
-              help='Set a base URL for a REST server. Default is http://localhost/.')
+@click.option('--base-url', default='http://web:5000/',
+              help='Set a base URL for a REST server. Default is http://web:5000/.')
 @click.option('--output', default='-',
               help='Set the file where to store the output. Default is -, i.e. the stdout.')
 @click.argument('command', type=click.Choice(['stat', 'read']))
@@ -43,82 +106,20 @@ def file_client(backend, grpc_server, base_url, output, command, uuid):
     
     # Validate UUID
     if not validate_uuid(uuid):
-        click.echo("Error: Invalid UUID format", err=True)
-        sys.exit(1)
+        handle_error("Error: Invalid UUID format")
+
     
     if backend == 'rest':
         if command == 'stat':
             stat_rest(uuid, base_url, output)
-        else:  # read
+        else:
             read_rest(uuid, base_url, output)
-    else:  # grpc
+    else:
         if command == 'stat':
             stat_grpc(uuid, grpc_server, output)
-        else:  # read
+        else:
             read_grpc(uuid, grpc_server, output)
 
-
-def stat_rest(uuid, base_url, output):
-    """Get file metadata via REST API"""
-    try:
-        url = f"{base_url.rstrip('/')}/file/{uuid}/stat/"
-        response = requests.get(url, timeout=30)
-        
-        if response.status_code == 404:
-            click.echo("Error: File not found", err=True)
-            sys.exit(1)
-        
-        response.raise_for_status()
-        data = response.json()
-        
-        # Format as human-readable text
-        output_text = f"""Name: {data.get('name', 'Unknown')}
-Size: {data.get('size', 0)} bytes
-MIME Type: {data.get('mimetype', 'Unknown')}
-Created: {data.get('create_datetime', 'Unknown')}"""
-        
-        write_output(output_text, output)
-        
-    except requests.RequestException as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
-
-
-def read_rest(uuid, base_url, output):
-    """Read file content via REST API"""
-    try:
-        url = f"{base_url.rstrip('/')}/file/{uuid}/read/"
-        response = requests.get(url, timeout=30)
-        
-        if response.status_code == 404:
-            click.echo("Error: File not found", err=True)
-            sys.exit(1)
-        
-        response.raise_for_status()
-        
-        if output == '-':
-            # Output to stdout as text
-            click.echo(response.text)
-        else:
-            # Save to file as binary to preserve exact content
-            with open(output, 'wb') as f:
-                f.write(response.content)
-        
-    except requests.RequestException as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
-
-
-def stat_grpc(uuid, grpc_server, output):
-    """Get file metadata via gRPC (not implemented)"""
-    click.echo("Error: gRPC backend not implemented", err=True)
-    sys.exit(1)
-
-
-def read_grpc(uuid, grpc_server, output):
-    """Read file content via gRPC (not implemented)"""
-    click.echo("Error: gRPC backend not implemented", err=True)
-    sys.exit(1)
 
 
 if __name__ == '__main__':

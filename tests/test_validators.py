@@ -22,8 +22,8 @@ class TestValidators:
         """Test invalid UUID formats are rejected"""
         invalid_uuids = [
             'not-a-uuid',
-            '123e4567-e89b-12d3-a456',  # Too short
-            '123e4567-e89b-12d3-a456-426614174000-extra',  # Too long
+            '123e4567-e89b-12d3-a456',  #short
+            '123e4567-e89b-12d3-a456-426614174000-extra',  #long
             '',
             None,
             '123e4567_e89b_12d3_a456_426614174000',  # Wrong separators

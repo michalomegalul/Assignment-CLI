@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Standalone file-client command as per assignment requirements
+file-client command
 """
 import sys
 import os
 
+# Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from cli.file_client import file_client
+from cli.commands import cli
 
 if __name__ == '__main__':
-    file_client()
+    cli()
