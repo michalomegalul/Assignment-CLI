@@ -1,7 +1,6 @@
 import click
 from datetime import datetime
 from .database import DatabaseManager
-from .file_client import file_client
 
 
 @click.group()
@@ -63,10 +62,6 @@ def flagged_domains():
             
     except Exception as e:
         click.echo(f"Error: {e}")
-
-
-# Add file-client command
-cli.add_command(file_client, name='file-client')
 
 
 if __name__ == '__main__':

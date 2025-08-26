@@ -13,6 +13,15 @@ def validate_uuid(uuid_str):
         return False
 
 
+def write_output(content, output_file):
+    """Write content to file or stdout"""
+    if output_file == '-':
+        click.echo(content)
+    else:
+        with open(output_file, 'w') as f:
+            f.write(content)
+
+
 @click.command()
 @click.option('--backend', type=click.Choice(['rest', 'grpc']), default='grpc',
               help='Set a backend to be used, choices are grpc and rest. Default is grpc.')
@@ -56,7 +65,7 @@ def stat_rest(uuid, base_url, output):
         response = requests.get(url, timeout=30)
         
         if response.status_code == 404:
-            click.echo("File not found", err=True)
+            click.echo("Error: File not found", err=True)
             sys.exit(1)
         
         response.raise_for_status()
@@ -82,7 +91,7 @@ def read_rest(uuid, base_url, output):
         response = requests.get(url, timeout=30)
         
         if response.status_code == 404:
-            click.echo("File not found", err=True)
+            click.echo("Error: File not found", err=True)
             sys.exit(1)
         
         response.raise_for_status()
@@ -110,15 +119,6 @@ def read_grpc(uuid, grpc_server, output):
     """Read file content via gRPC (not implemented)"""
     click.echo("Error: gRPC backend not implemented", err=True)
     sys.exit(1)
-
-
-def write_output(content, output_file):
-    """Write content to file or stdout"""
-    if output_file == '-':
-        click.echo(content)
-    else:
-        with open(output_file, 'w') as f:
-            f.write(content)
 
 
 if __name__ == '__main__':
