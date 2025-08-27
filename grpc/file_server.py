@@ -5,12 +5,12 @@ import json
 import uuid as uuid_lib
 from datetime import datetime
 from google.protobuf.timestamp_pb2 import Timestamp
-from ..cli.errors import handle_error, logger
+from cli.errors import handle_error, logger
 
-# Import the generated protobuf files
 try:
-    import file_pb2
-    import file_pb2_grpc
+    from protos import file_service_pb2 as file_pb2
+    from protos import file_service_pb2_grpc as file_pb2_grpc
+
 except ImportError:
     handle_error("gRPC protobuf files not found. Run: python generate_proto.py")
 

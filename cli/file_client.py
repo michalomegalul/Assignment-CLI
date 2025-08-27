@@ -1,124 +1,168 @@
-import uuid as uuid_lib
+import click
 import requests
 import sys
-import click
-from .errors import handle_error
+import uuid as uuid_lib
+from .errors import handle_error, logger
+
+# Import gRPC client functions
+try:
+    from ..grpc.client import stat_grpc_impl, read_grpc_impl
+    grpc_available = True
+except ImportError:
+    logger.warning("gRPC client not available")
+    grpc_available = False
+
 
 def validate_uuid(uuid_str):
-    """Validate if string is a valid UUID format"""
-    if uuid_str is None or uuid_str == '':
-        return False
-    
+    """Simple UUID validation"""
     try:
         uuid_lib.UUID(uuid_str)
         return True
-    except (ValueError, TypeError):
+    except ValueError:
         return False
 
+
 def write_output(content, output_file):
-    """Write content to output file or stdout"""
+    """Write content to file or stdout"""
     if output_file == '-':
         click.echo(content)
     else:
-        with open(output_file, 'w') as f:
-            f.write(content)
+        try:
+            with open(output_file, 'w') as f:
+                f.write(content)
+            logger.info(f"Output written to {output_file}")
+        except Exception as e:
+            handle_error(f"Error writing to file: {e}")
 
-def stat_rest(uuid_str, base_url, output):
-    """Get file statistics via REST API"""
-    if not base_url.endswith('/'):
-        base_url += '/'
 
-    url = f"{base_url}file/{uuid_str}/stat/"
-
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-
-        data = response.json()
-
-        output_lines = [
-            f"Name: {data.get('name', 'Unknown')}",
-            f"Size: {data.get('size', 0)} bytes",
-            f"MIME Type: {data.get('mimetype', 'Unknown')}",
-            f"Created: {data.get('create_datetime', 'Unknown')}"
-        ]
-
-        content = '\n'.join(output_lines)
-        write_output(content, output)
-
-    except requests.exceptions.RequestException as e:
-        handle_error(str(e))
-    except Exception as e:
-        handle_error(str(e))
-
-def read_rest(uuid_str, base_url, output):
-    """Read file content via REST API"""
-    if not validate_uuid(uuid_str):
+def stat_rest(uuid, base_url, output):
+    """Get file metadata via REST API"""
+    logger.info(f"REST stat request for UUID: {uuid}")
+    
+    if not validate_uuid(uuid):
         handle_error("Invalid UUID format")
-
+    
+    # Construct REST API URL
     if not base_url.endswith('/'):
         base_url += '/'
+    url = f"{base_url}file/{uuid}/stat/"
     
-    url = f"{base_url}file/{uuid_str}/read/"
+    logger.info(f"Making REST request to: {url}")
     
     try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-
-        if output == '-':
-            sys.stdout.buffer.write(response.content)
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Format output in human-readable manner
+            output_text = f"""Name: {data['name']}
+Size: {data['size']} bytes
+MIME Type: {data['mimetype']}
+Created: {data['create_datetime']}"""
+            write_output(output_text, output)
+            logger.info("REST stat request completed successfully")
+        elif response.status_code == 404:
+            handle_error("File not found")
+        elif response.status_code == 400:
+            handle_error("Invalid UUID format")
         else:
-            with open(output, 'wb') as f:
-                f.write(response.content)
-                
-    except requests.exceptions.RequestException as e:
-        handle_error(f"Error: {e}")
+            handle_error(f"Server returned status {response.status_code}")
+            
+    except requests.exceptions.ConnectionError:
+        handle_error(f"Cannot connect to REST server at {base_url}")
+    except requests.exceptions.Timeout:
+        handle_error("Request timeout")
     except Exception as e:
-        handle_error(f"Error: {e}")
+        handle_error(f"REST request failed: {e}")
+
+
+def read_rest(uuid, base_url, output):
+    """Read file content via REST API"""
+    logger.info(f"REST read request for UUID: {uuid}")
+    
+    if not validate_uuid(uuid):
+        handle_error("Invalid UUID format")
+    
+    # Construct REST API URL
+    if not base_url.endswith('/'):
+        base_url += '/'
+    url = f"{base_url}file/{uuid}/read/"
+    
+    logger.info(f"Making REST request to: {url}")
+    
+    try:
+        response = requests.get(url, timeout=30, stream=True)
+        
+        if response.status_code == 200:
+            if output == '-':
+                # Stream to stdout
+                for chunk in response.iter_content(chunk_size=8192):
+                    sys.stdout.buffer.write(chunk)
+                    sys.stdout.buffer.flush()
+            else:
+                # Stream to file
+                with open(output, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            logger.info("REST read request completed successfully")
+        elif response.status_code == 404:
+            handle_error("File not found")
+        elif response.status_code == 400:
+            handle_error("Invalid UUID format")
+        else:
+            handle_error(f"Server returned status {response.status_code}")
+            
+    except requests.exceptions.ConnectionError:
+        handle_error(f"Cannot connect to REST server at {base_url}")
+    except requests.exceptions.Timeout:
+        handle_error("Request timeout")
+    except Exception as e:
+        handle_error(f"REST request failed: {e}")
+
 
 def stat_grpc(uuid, grpc_server, output):
-    """Get file metadata via gRPC - imports from separate client module"""
-    from .grpc_client import stat_grpc_impl
+    """Get file metadata via gRPC - delegates to grpc_client"""
+    if not grpc_available:
+        handle_error("gRPC support not available")
+    
     stat_grpc_impl(uuid, grpc_server, output)
 
+
 def read_grpc(uuid, grpc_server, output):
-    """Read file content via gRPC - imports from separate client module"""
-    from .grpc_client import read_grpc_impl
+    """Read file content via gRPC - delegates to grpc_client"""
+    if not grpc_available:
+        handle_error("gRPC support not available")
+    
     read_grpc_impl(uuid, grpc_server, output)
+
 
 @click.command()
 @click.option('--backend', type=click.Choice(['rest', 'grpc']), default='grpc',
               help='Set a backend to be used, choices are grpc and rest. Default is grpc.')
 @click.option('--grpc-server', default='localhost:50051',
               help='Set a host and port of the gRPC server. Default is localhost:50051.')
-@click.option('--base-url', default='http://web:5000/',
-              help='Set a base URL for a REST server. Default is http://web:5000/.')
+@click.option('--base-url', default='http://localhost/',
+              help='Set a base URL for a REST server. Default is http://localhost/.')
 @click.option('--output', default='-',
               help='Set the file where to store the output. Default is -, i.e. the stdout.')
 @click.argument('command', type=click.Choice(['stat', 'read']))
 @click.argument('uuid')
 def file_client(backend, grpc_server, base_url, output, command, uuid):
-    """File client for REST/gRPC operations
     
-    Commands:
-      stat    Prints the file metadata in a human-readable manner.
-      read    Outputs the file content.
-    """
+    logger.info(f"File client started - backend: {backend}, command: {command}, UUID: {uuid}")
     
-    # Validate UUID
-    if not validate_uuid(uuid):
-        handle_error("Invalid UUID format")
-
+    # Route to appropriate backend and command
     if backend == 'rest':
         if command == 'stat':
             stat_rest(uuid, base_url, output)
-        else:
+        elif command == 'read':
             read_rest(uuid, base_url, output)
-    else:  # grpc
+    elif backend == 'grpc':
         if command == 'stat':
             stat_grpc(uuid, grpc_server, output)
-        else:
+        elif command == 'read':
             read_grpc(uuid, grpc_server, output)
+
 
 if __name__ == '__main__':
     file_client()

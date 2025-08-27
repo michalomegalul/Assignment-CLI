@@ -1,7 +1,11 @@
 #!/bin/bash
-
 echo "Generating protobuf files..."
-python -m grpc_tools.protoc --python_out=cli --grpc_python_out=cli --proto_path=. ../protos/file_service.proto
 
-echo "Protobuf files generated successfully!"
-echo "You can now run: docker-compose up -d"
+if [ -d "protos" ]; then
+    python -m grpc_tools.protoc --python_out=protos/ --grpc_python_out=protos/ --proto_path=protos protos/file_service.proto
+    chown $(whoami):$(whoami) protos/file_service_pb2*.py 2>/dev/null || true
+    echo "Protobuf files generated successfully!"
+else
+    echo "Error: Cannot find protos directory"
+    exit 1
+fi

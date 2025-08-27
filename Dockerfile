@@ -11,9 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python generate_proto.py
+RUN ./helper_scripts/setup.sh
 
 RUN chmod +x file-client
+RUN chmod +x cli-client
 
 ENV PATH="/app:${PATH}"
 
