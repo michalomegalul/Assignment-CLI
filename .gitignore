@@ -4,9 +4,31 @@ __pycache__/
 *.pyo
 test_files/
 
-# Generated protobuf files
+# Generated proto
 *_pb2.py
 *_pb2_grpc.py
 
 # Env
 .env
+
+# Generated files
+files/*.txt
+files/*.json
+files/*.bin
+files/*.pdf
+files/*.jpg
+files/*.png
+files/*.docx
+files/*.xlsx
+files/metadata.json
+files/*.*
+
+
+# Test outputs
+test_outputs/
+/tmp/
+
+# Environment specific
+.env.local
+.env.development
+.env.production
