@@ -38,4 +38,22 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["python", "cli/file_rest.py"]
+    command: ["python", "rest/file_server.py"]
+
+  grpc-server:
+    build: .
+    ports:
+      - "50051:50051"
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "grpc/file_server.py"]
+    environment:
+      - GRPC_PORT=50051
+      - UPLOAD_FOLDER=/app/files
+      - METADATA_FILE=/app/metadata.json

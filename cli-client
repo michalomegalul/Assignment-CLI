@@ -1,7 +1,4 @@
-#!/usr/bin/env python3
-"""
-file-client command
-"""
+#!/usr/bin/env python3r
 import sys
 import os
 

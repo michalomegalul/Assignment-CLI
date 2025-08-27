@@ -54,9 +54,8 @@ def stat_rest(uuid_str, base_url, output):
 def read_rest(uuid_str, base_url, output):
     """Read file content via REST API"""
     if not validate_uuid(uuid_str):
-        handle_error("Error: Invalid UUID format")
+        handle_error("Invalid UUID format")
 
-    
     if not base_url.endswith('/'):
         base_url += '/'
     
@@ -78,12 +77,14 @@ def read_rest(uuid_str, base_url, output):
         handle_error(f"Error: {e}")
 
 def stat_grpc(uuid, grpc_server, output):
-    """Get file metadata via gRPC (not implemented)"""
-    handle_error("Error: gRPC backend not implemented")
+    """Get file metadata via gRPC - imports from separate client module"""
+    from .grpc_client import stat_grpc_impl
+    stat_grpc_impl(uuid, grpc_server, output)
 
 def read_grpc(uuid, grpc_server, output):
-    """Read file content via gRPC (not implemented)"""
-    handle_error("Error: gRPC backend not implemented")
+    """Read file content via gRPC - imports from separate client module"""
+    from .grpc_client import read_grpc_impl
+    read_grpc_impl(uuid, grpc_server, output)
 
 @click.command()
 @click.option('--backend', type=click.Choice(['rest', 'grpc']), default='grpc',
@@ -106,21 +107,18 @@ def file_client(backend, grpc_server, base_url, output, command, uuid):
     
     # Validate UUID
     if not validate_uuid(uuid):
-        handle_error("Error: Invalid UUID format")
+        handle_error("Invalid UUID format")
 
-    
     if backend == 'rest':
         if command == 'stat':
             stat_rest(uuid, base_url, output)
         else:
             read_rest(uuid, base_url, output)
-    else:
+    else:  # grpc
         if command == 'stat':
             stat_grpc(uuid, grpc_server, output)
         else:
             read_grpc(uuid, grpc_server, output)
-
-
 
 if __name__ == '__main__':
     file_client()
