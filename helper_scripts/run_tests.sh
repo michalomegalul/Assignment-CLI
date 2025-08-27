@@ -3,28 +3,11 @@ set -euo pipefail
 
 echo "====================================="
 echo "         Test Runner"
+echo "Current Date: 2025-08-27 14:52:50 UTC"
+echo "Current User: michalomegalul"
 echo "====================================="
 
-echo "[1/5] Stopping existing containers..."
-#docker-compose down -v || echo "No containers to stop."
-
-echo "[2/5] Starting services..."
-docker-compose up -d
-
-echo "[3/5] Waiting for database to be ready..."
-until docker-compose exec -T db pg_isready -U user -d domains > /dev/null 2>&1; do
-  echo "  Waiting for DB..."
-  sleep 2
-done
-echo "  Database is ready."
-
-echo "[4/5] Initializing test data..."
-docker-compose exec -T app python -m cli.init_db || {
-  echo "Failed to initialize DB"
-  exit 1
-}
-
-echo "[5/5] Running tests..."
+echo "[1/1] Running tests..."
 echo "Running all pytest tests..."
 docker-compose exec -T app python -m pytest tests/ -v --tb=short || {
   echo "Tests failed!"
@@ -42,36 +25,49 @@ echo "$ file-client --help"
 docker-compose exec -T app file-client --help
 
 echo ""
-echo "3. Testing status command:"
-echo "$ cli-client stat"
+echo "2. Testing file-client with demo UUIDs:"
+echo "$ file-client stat 12345678-1234-5678-9abc-123456789abc"
+docker-compose exec -T app file-client stat 12345678-1234-5678-9abc-123456789abc
+
+echo ""
+echo "$ file-client read 87654321-4321-8765-cba9-987654321098"
+docker-compose exec -T app file-client read 87654321-4321-8765-cba9-987654321098
+
+echo ""
+echo "3. Testing cli-client status command:"
+echo "$ cli-client status"
 docker-compose exec -T app cli-client status
 
 echo ""
-echo "4. Testing active-domains command:"
+echo "4. Testing cli-client active-domains command:"
 echo "$ cli-client active-domains"
 docker-compose exec -T app cli-client active-domains
 
 echo ""
-echo "5. Testing flagged-domains command:"
+echo "5. Testing cli-client flagged-domains command:"
 echo "$ cli-client flagged-domains"
 docker-compose exec -T app cli-client flagged-domains
 
 echo ""
 echo "6. Testing file-client with invalid UUID (should show error):"
 echo "$ file-client stat invalid-uuid"
-docker-compose exec -T app file-client stat invalid-uuid || echo " Expected error occurred"
+docker-compose exec -T app file-client stat invalid-uuid || echo "✅ Expected error occurred"
 
 echo ""
-echo "7. Testing file-client with valid UUID but no server (should depend on fallback server web:5000):"
-echo "$ file-client --backend rest stat 123e4567-e89b-12d3-a456-426614174000"
-docker-compose exec -T app file-client --backend rest stat 123e4567-e89b-12d3-a456-426614174000 || echo " Expected error occurred"
+echo "7. Testing file-client with non-existent UUID (should show error):"
+echo "$ file-client stat 99999999-9999-9999-9999-999999999999"
+docker-compose exec -T app file-client stat 99999999-9999-9999-9999-999999999999 || echo "✅ Expected error occurred"
 
 echo ""
-echo "8. Testing gRPC backend (should show not implemented):"
-echo "$ file-client --backend grpc stat 123e4567-e89b-12d3-a456-426614174000"
-docker-compose exec -T app file-client --backend grpc stat 123e4567-e89b-12d3-a456-426614174000 || echo " Expected error occurred"
+echo "8. Testing file-client output to file:"
+echo "$ file-client --output /tmp/test_output.txt stat 12345678-1234-5678-9abc-123456789abc"
+docker-compose exec -T app file-client --output /tmp/test_output.txt stat 12345678-1234-5678-9abc-123456789abc
+echo "$ cat /tmp/test_output.txt"
+docker-compose exec -T app cat /tmp/test_output.txt
 
 echo ""
 echo "====================================="
 echo "All tests completed successfully!"
+echo "Assignment: File Client CLI by michalomegalul"
+echo "Date: 2025-08-27 14:52:50 UTC"
 echo "====================================="

@@ -37,7 +37,6 @@ CREATE TABLE domain_flag (
 
 );
 
--- Indexes for performance
 CREATE INDEX idx_domain_fqdn ON domain(fqdn);
 CREATE INDEX idx_domain_unregistered ON domain(unregistered_at);
 CREATE INDEX idx_flag_domain_id ON domain_flag(domain_id);

@@ -2,6 +2,8 @@ import grpc
 from concurrent import futures
 import os
 import json
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import uuid as uuid_lib
 from datetime import datetime
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -10,9 +12,8 @@ from cli.errors import handle_error, logger
 try:
     from protos import file_service_pb2 as file_pb2
     from protos import file_service_pb2_grpc as file_pb2_grpc
-
-except ImportError:
-    handle_error("gRPC protobuf files not found. Run: python generate_proto.py")
+except ImportError as e:
+    handle_error(f"gRPC protobuf files not found: {e}. Run: python generate_proto.py")
 
 class FileService(file_pb2_grpc.FileServicer):
     """gRPC File Service Implementation

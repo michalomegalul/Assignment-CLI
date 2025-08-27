@@ -13,7 +13,7 @@ This project implements a CLI application:
 
 ### File Client
 - **REST API Integration** - File operations via REST endpoints
-- **gRPC Support** - doesn't work yet
+- **gRPC Support** - doesn't work had problem with importing grpc generated files tried it in different project so logic should work never worked with grpc but happy to learn
 - **UUID Validation** - Proper format checking
 - **Flexible Output** - Console or file output options
 - **Error Handling** - error reporting
@@ -67,10 +67,14 @@ psql -U postgres -d domains -f sql/seed.sql
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your settings
+# Edit .env with your database settings
+
+# Initialize demo files
+python helper_scripts/setup_demo.sh
 
 # Run file-client
-python file-client --help
+python -m file-client --help
+
 ```
 
 ## File Client Usage
@@ -82,20 +86,24 @@ The `file-client` command implements:
 file-client [options] stat UUID
 file-client [options] read UUID
 
-# Examples
-file-client stat 123e4567-e89b-12d3-a456-426614174000
-file-client --backend rest stat 123e4567-e89b-12d3-a456-426614174000
-file-client --backend rest --base-url http://localhost/ read 123e4567-e89b-12d3-a456-426614174000
-file-client --output /tmp/metadata.txt stat 123e4567-e89b-12d3-a456-426614174000
+# Working examples with pre-loaded demo data
+file-client stat 12345678-1234-5678-9abc-123456789abc
+file-client read 87654321-4321-8765-cba9-987654321098
+file-client stat 11111111-2222-3333-4444-555555555555
+
+# With options
+file-client --backend rest stat 12345678-1234-5678-9abc-123456789abc
+file-client --base-url http://web:5000/ read 87654321-4321-8765-cba9-987654321098
+file-client --output /tmp/metadata.txt stat 12345678-1234-5678-9abc-123456789abc
 ```
 
 ### File Client Options
 
 | Option          | Default             | Description |
 |--------         |---------            |-------------|
-| `--backend`     | `grpc`              | Backend type: `grpc` or `rest` |
+| `--backend`     | `rest`              | Backend type: `grpc` or `rest` |
 | `--grpc-server` | `localhost:50051`   | gRPC server host:port |
-| `--base-url`    | `http://localhost/` | REST API base URL |
+| `--base-url`    | `http://web:5000/`  | REST API base URL |
 | `--output`      | `-`                 | Output file (- for stdout) |
 
 ### Commands
@@ -103,20 +111,40 @@ file-client --output /tmp/metadata.txt stat 123e4567-e89b-12d3-a456-426614174000
 - **`stat`** - Prints file metadata
 - **`read`** - Outputs file content
 
-# Domain management commands
+# Domain management commands (separate from file-client)
 cli-client status
-cli-client active-domains
+cli-client active-domains  
 cli-client flagged-domains
 
-# File client commands
+# File client commands (Assignment implementation)
 file-client --help
 file-client stat UUID
 file-client read UUID
 file-client --backend=rest stat UUID
-file-client --base-url=http://example.com/ stat UUID
+file-client --base-url=http://web:5000/ stat UUID
 file-client --output=output.txt read UUID
 
+### Output to file
+```bash
+# Save metadata to file
+$ file-client --output metadata.txt stat 12345678-1234-5678-9abc-123456789abc
+$ cat metadata.txt
 
+# Save content to file
+$ file-client --output content.json read 87654321-4321-8765-cba9-987654321098
+$ cat content.json
+```
+### Environment Configuration
+```
+# Development mode with verbose logging
+APP_ENV=development LOG_LEVEL=debug file-client stat UUID
+
+# Production mode (quiet - errors only)
+APP_ENV=production file-client stat UUID
+
+# Custom base URL
+file-client --base-url http://localhost:5000/ stat UUID
+```
 ## Database Schema
 
 ### Tables
@@ -143,5 +171,5 @@ file-client --output=output.txt read UUID
 ### Run All Tests
 
 ```bash
-sudo ./run_tests.sh
+sudo ./helper_scripts/run_tests.sh
 ```

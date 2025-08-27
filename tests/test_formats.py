@@ -18,7 +18,6 @@ class TestDataFormats:
             'mimetype': 'application/pdf',
             'create_datetime': '2025-01-15T14:30:00Z'
         }
-        mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
@@ -45,19 +44,21 @@ class TestDataFormats:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             'name': 'partial.txt'
+            # Missing size, mimetype, create_datetime
         }
-        mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
         stat_rest(valid_uuid, 'http://localhost/', '-')
         
+        mock_write.assert_called_once()
         output_content = mock_write.call_args[0][0]
         
+        # Should handle missing fields gracefully
         assert 'Name: partial.txt' in output_content
-        assert 'Size:' in output_content 
-        assert 'MIME Type:' in output_content 
-        assert 'Created:' in output_content 
+        assert 'Size: 0 bytes' in output_content 
+        assert 'MIME Type: application/octet-stream' in output_content 
+        assert 'Created: Unknown' in output_content 
 
 
 if __name__ == '__main__':

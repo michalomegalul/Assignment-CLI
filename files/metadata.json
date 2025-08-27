@@ -1,0 +1,23 @@
+{
+  "12345678-1234-5678-9abc-123456789abc": {
+    "name": "sample.txt",
+    "size": 67,
+    "mimetype": "text/plain",
+    "create_datetime": "2025-08-27T14:25:31Z",
+    "file_path": "/app/files/sample.txt"
+  },
+  "87654321-4321-8765-cba9-987654321098": {
+    "name": "test.json",
+    "size": 131,
+    "mimetype": "application/json",
+    "create_datetime": "2025-08-27T14:25:31Z",
+    "file_path": "/app/files/test.json"
+  },
+  "11111111-2222-3333-4444-555555555555": {
+    "name": "document.bin",
+    "size": 116,
+    "mimetype": "application/octet-stream",
+    "create_datetime": "2025-08-27T14:25:31Z",
+    "file_path": "/app/files/document.bin"
+  }
+}

@@ -33,13 +33,14 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - ./helper_scripts/setup_demo.sh:/app/setup_demo.sh
     working_dir: /app
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
-    command: ["python", "rest/file_server.py"]
+    command: ["sh", "-c", "chmod +x /app/setup_demo.sh && /app/setup_demo.sh && python rest/file_server.py"]
 
   grpc-server:
     build: .
@@ -57,5 +58,5 @@ services:
     environment:
       - GRPC_PORT=50051
       - UPLOAD_FOLDER=/app/files
-      - METADATA_FILE=/app/metadata.json
+      - METADATA_FILE=/app/files/metadata.json
       - PYTHONPATH=/app

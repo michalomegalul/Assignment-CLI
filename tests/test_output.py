@@ -13,8 +13,12 @@ class TestRestClient:
         """Test that URLs are constructed correctly"""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {'name': 'test'}
-        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            'name': 'test',
+            'size': 100,
+            'mimetype': 'text/plain',
+            'create_datetime': '2025-08-27T14:52:50Z'
+        }
         mock_get.return_value = mock_response
 
         valid_uuid = '123e4567-e89b-12d3-a456-426614174000'
@@ -30,7 +34,7 @@ class TestRestClient:
             mock_get.reset_mock()
             
             stat_rest(valid_uuid, base_url, '-')
-            mock_get.assert_called_with(expected_url, timeout=30)
+            mock_get.assert_called_with(expected_url, timeout=10)
     
     @patch('cli.file_client.requests.get')
     @patch('cli.file_client.write_output')
@@ -57,7 +61,6 @@ class TestRestClient:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = response_data
-            mock_response.raise_for_status.return_value = None
             mock_get.return_value = mock_response
             
             # Should not raise exceptions
@@ -79,7 +82,6 @@ class TestRestClient:
             mock_response = MagicMock()
             mock_response.status_code = status_code
             mock_response.reason = expected_behavior
-            mock_response.raise_for_status.side_effect = requests.HTTPError(f"{status_code} {expected_behavior}")
             mock_get.return_value = mock_response
             
             with pytest.raises(SystemExit):

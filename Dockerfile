@@ -11,7 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN ./helper_scripts/setup.sh
+RUN helper_scripts/setup.sh
+    
+
 
 RUN chmod +x file-client
 RUN chmod +x cli-client
@@ -20,5 +22,6 @@ ENV PATH="/app:${PATH}"
 
 RUN useradd -m -u 1000 user && chown -R user:user /app
 USER user
+RUN chown -R user:user /app/protos
 
 CMD ["python", "--help"]
