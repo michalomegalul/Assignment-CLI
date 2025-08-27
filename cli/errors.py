@@ -8,7 +8,6 @@ def setup_logging():
     log_level = os.getenv('LOG_LEVEL', 'info').upper()
     app_env = os.getenv('APP_ENV', 'production').lower()
     
-    # Map string levels to logging constants
     level_map = {
         'DEBUG': logging.DEBUG,
         'INFO': logging.INFO,
@@ -36,7 +35,6 @@ def setup_logging():
     
     return logging.getLogger(__name__)
 
-# Setup logger
 logger = setup_logging()
 
 def handle_error(message, exit_code=1):

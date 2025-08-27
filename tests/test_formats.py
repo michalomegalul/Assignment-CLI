@@ -44,7 +44,6 @@ class TestDataFormats:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             'name': 'partial.txt'
-            # Missing size, mimetype, create_datetime
         }
         mock_get.return_value = mock_response
         
@@ -54,7 +53,6 @@ class TestDataFormats:
         mock_write.assert_called_once()
         output_content = mock_write.call_args[0][0]
         
-        # Should handle missing fields gracefully
         assert 'Name: partial.txt' in output_content
         assert 'Size: 0 bytes' in output_content 
         assert 'MIME Type: application/octet-stream' in output_content 

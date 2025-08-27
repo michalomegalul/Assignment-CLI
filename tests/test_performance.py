@@ -40,7 +40,6 @@ class TestPerformance:
         
         stat_rest(valid_uuid, 'http://localhost/', '-')
         
-        # Verify timeout is set to 10 seconds for stat requests
         mock_get.assert_called_with(f'http://localhost/file/{valid_uuid}/stat/', timeout=10)
 
 

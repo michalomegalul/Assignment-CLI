@@ -85,7 +85,6 @@ def read_rest(uuid, base_url, output):
     if not validate_uuid(uuid):
         handle_error("Invalid UUID format")
     
-    # Construct REST API URL
     if not base_url.endswith('/'):
         base_url += '/'
     url = f"{base_url}file/{uuid}/read/"
@@ -122,7 +121,6 @@ def read_rest(uuid, base_url, output):
         handle_error(f"REST request failed: {e}")
 
 
-# Main CLI group
 @click.group(invoke_without_command=True)
 @click.option('--backend', type=click.Choice(['rest']), default='rest',
               help='Set a backend to be used, only rest is supported. Default is rest.')
@@ -138,7 +136,6 @@ def file_client(ctx, backend, base_url, output):
     Date: 2025-08-27 14:52:50 UTC
     Assignment: CLI File Client Implementation
     """
-    # Ensure a context object exists and store the options
     ctx.ensure_object(dict)
     ctx.obj['backend'] = backend
     ctx.obj['base_url'] = base_url

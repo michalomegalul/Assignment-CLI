@@ -3,8 +3,6 @@ set -euo pipefail
 
 echo "====================================="
 echo "         Test Runner"
-echo "Current Date: 2025-08-27 14:52:50 UTC"
-echo "Current User: michalomegalul"
 echo "====================================="
 
 echo "[1/1] Running tests..."
@@ -68,6 +66,4 @@ docker-compose exec -T app cat /tmp/test_output.txt
 echo ""
 echo "====================================="
 echo "All tests completed successfully!"
-echo "Assignment: File Client CLI by michalomegalul"
-echo "Date: 2025-08-27 14:52:50 UTC"
 echo "====================================="

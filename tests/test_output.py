@@ -63,7 +63,6 @@ class TestRestClient:
             mock_response.json.return_value = response_data
             mock_get.return_value = mock_response
             
-            # Should not raise exceptions
             stat_rest(valid_uuid, 'http://localhost/', '-')
     
     @patch('cli.file_client.requests.get')

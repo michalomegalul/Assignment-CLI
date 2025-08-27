@@ -1,22 +1,17 @@
 #!/bin/bash
-# Demo files setup script for File Client CLI
 echo "Setting up demo files for File Client CLI..."
 
-# Create files directory for demo data and uploaded files
 mkdir -p /app/files
 
-# Create sample files with current content
+
 echo "Hello, this is a sample text file for testing the File Client CLI!" > /app/files/sample.txt
 echo '{"message": "This is a test JSON file", "timestamp": "2025-08-27T14:25:31Z", "purpose": "CLI testing", "author": "michalomegalul"}' > /app/files/test.json
 echo "Binary content example - this could be any file type. Created for testing purposes by michalomegalul on 2025-08-27." > /app/files/document.bin
 
-# Calculate actual file sizes
 SAMPLE_SIZE=$(wc -c < /app/files/sample.txt)
 JSON_SIZE=$(wc -c < /app/files/test.json)
 BIN_SIZE=$(wc -c < /app/files/document.bin)
 
-# Create metadata.json in files/ directory with predefined UUIDs and actual sizes
-cat > /app/files/metadata.json << EOF
 {
   "12345678-1234-5678-9abc-123456789abc": {
     "name": "sample.txt",

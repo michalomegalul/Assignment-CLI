@@ -16,11 +16,7 @@ except ImportError as e:
     handle_error(f"gRPC protobuf files not found: {e}. Run: python generate_proto.py")
 
 class FileService(file_pb2_grpc.FileServicer):
-    """gRPC File Service Implementation
-    
-    This class implements the File service defined in file.proto.
-    Each method corresponds to an RPC method in the proto file.
-    """
+
     
     def __init__(self):
         self.upload_folder = os.getenv("UPLOAD_FOLDER", "/app/files")
@@ -40,14 +36,6 @@ class FileService(file_pb2_grpc.FileServicer):
         return {}
     
     def stat(self, request, context):
-        """RPC method: Get file metadata
-        
-        gRPC Flow:
-        1. Client sends StatRequest with UUID
-        2. Server validates UUID and looks up metadata  
-        3. Server returns StatReply with file info OR sets error status
-        4. Client receives response or gRPC exception
-        """
         logger.info(f"stat() called for UUID: {request.uuid.value}")
         
         try:
@@ -100,15 +88,7 @@ class FileService(file_pb2_grpc.FileServicer):
             return file_pb2.StatReply()
     
     def read(self, request, context):
-        """RPC method: Read file content (streaming)
-        
-        gRPC Streaming Flow:
-        1. Client sends ReadRequest with UUID and chunk size
-        2. Server validates UUID and opens file
-        3. Server yields multiple ReadReply messages (streaming)
-        4. Client receives each chunk as it's sent
-        5. Stream ends when file is fully sent or error occurs
-        """
+
         logger.info(f"read() called for UUID: {request.uuid.value}")
         
         try:
@@ -165,15 +145,7 @@ class FileService(file_pb2_grpc.FileServicer):
             return
 
 def serve():
-    """Start the gRPC server
-    
-    Server Lifecycle:
-    1. Create ThreadPoolExecutor for handling concurrent requests
-    2. Add our FileService to the server
-    3. Bind to network port (default 50051)
-    4. Start accepting connections
-    5. Wait for shutdown signal
-    """
+
     port = os.getenv("GRPC_PORT", "50051")
     
     try:
