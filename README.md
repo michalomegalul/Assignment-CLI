@@ -13,7 +13,7 @@ This project implements a CLI application:
 
 ### File Client
 - **REST API Integration** - File operations via REST endpoints
-- **gRPC Support** - doesn't work had problem with importing grpc generated files tried it in different project so logic should work never worked with grpc but happy to learn
+- **gRPC Support** - Currently running into some import issues with the generated gRPC files, but the core logic should work.
 - **UUID Validation** - Proper format checking
 - **Flexible Output** - Console or file output options
 - **Error Handling** - error reporting
